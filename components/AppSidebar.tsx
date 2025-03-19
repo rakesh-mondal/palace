@@ -140,268 +140,35 @@ const AppSidebar = ({ className }: SidebarProps) => {
 
         {/* Credit Allocation Menu */}
         <SidebarMenuItem>
-          <Collapsible open={isCreditOpen} onOpenChange={setIsCreditOpen}>
-            <CollapsibleTrigger asChild>
-              <SidebarMenuButton
-                className={cn(
-                  "flex items-center w-full cursor-pointer",
-                  isCollapsed
-                    ? "p-0 h-10 justify-center data-[active=true]:bg-[#77866E]/50 data-[active=true]:text-white"
-                    : "py-2 px-3 sm:px-4",
-                  "hover:bg-[#77866E]/50 hover:text-white transition-colors",
-                  "data-[active=true]:bg-[#77866E]/50 data-[active=true]:text-white",
-                  "rounded-none",
-                  "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
-                  "whitespace-normal",
-                )}
-                onClick={() => {
-                  setIsCreditOpen(!isCreditOpen)
-                  console.log("Credit Allocation submenu toggled:", isCreditOpen)
-                }}
-              >
-                {isCollapsed ? (
-                  <div className="flex items-center justify-center w-10 h-10">
-                    <CreditCard className="w-5 h-5 text-gray-400" />
-                    <span className="sr-only">Credit Allocation</span>
-                  </div>
-                ) : (
-                  <>
-                    <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-                    <span className="text-xs sm:text-sm font-medium break-words flex-grow text-left">
-                      Credit Allocation
-                    </span>
-                    <ChevronDown
-                      className={cn(
-                        "w-4 h-4 transition-transform duration-200",
-                        isCreditOpen ? "rotate-180" : "rotate-0",
-                      )}
-                    />
-                  </>
-                )}
-              </SidebarMenuButton>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-1">
-              {!isCollapsed && (
+          <SidebarMenuButton
+            asChild
+            data-active={pathname.startsWith("/credit-allocation")}
+            className={cn(
+              "flex items-center w-full cursor-pointer",
+              isCollapsed
+                ? "p-0 h-10 justify-center data-[active=true]:bg-[#77866E]/50 data-[active=true]:text-white"
+                : "py-2 px-3 sm:px-4",
+              "hover:bg-[#77866E]/50 hover:text-white transition-colors",
+              "data-[active=true]:bg-[#77866E]/50 data-[active=true]:text-white",
+              "rounded-none",
+              "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+              "whitespace-normal",
+            )}
+          >
+            <Link href="/credit-allocation" className="flex items-center gap-3 w-full">
+              {isCollapsed ? (
+                <div className="flex items-center justify-center w-10 h-10">
+                  <CreditCard className="w-5 h-5 text-gray-400" />
+                  <span className="sr-only">Credit Allocation</span>
+                </div>
+              ) : (
                 <>
-                  {/* Hour Allocation Management Section */}
-                  <div className="py-2">
-                    <div className="px-4 py-1.5">
-                      <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Hour Allocation Management
-                      </span>
-                    </div>
-                    <div className="space-y-1">
-                      {/* Create Allocation Link */}
-                      {(() => {
-                        if (isHiddenMenuItem("/credit-allocation/create")) return null
-                        return (
-                          <Link
-                            href="/credit-allocation/create"
-                            className={cn(
-                              "flex items-center py-2 px-8 text-sm hover:bg-[#77866E]/50 hover:text-white transition-colors",
-                              pathname === "/credit-allocation/create" && "bg-[#77866E]/50 text-white",
-                            )}
-                          >
-                            Create Allocation
-                          </Link>
-                        )
-                      })()}
-
-                      {/* Internal Reservations Link */}
-                      {(() => {
-                        if (isHiddenMenuItem("/credit-allocation/internal-reservations")) return null
-                        return (
-                          <Link
-                            href="/credit-allocation/internal-reservations"
-                            className={cn(
-                              "flex items-center py-2 px-8 text-sm hover:bg-[#77866E]/50 hover:text-white transition-colors",
-                              pathname === "/credit-allocation/internal-reservations" && "bg-[#77866E]/50 text-white",
-                            )}
-                          >
-                            Internal Reservations
-                          </Link>
-                        )
-                      })()}
-                    </div>
-                  </div>
-
-                  {/* Entity Management Section */}
-                  <div className="py-2 mt-2 border-t border-gray-700">
-                    <div className="px-4 py-1.5">
-                      <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Entity Management
-                      </span>
-                    </div>
-                    <div className="space-y-1">
-                      {/* Entity Directory Link */}
-                      {(() => {
-                        if (isHiddenMenuItem("/credit-allocation/entity-directory")) return null
-                        return (
-                          <Link
-                            href="/credit-allocation/entity-directory"
-                            className={cn(
-                              "flex items-center py-2 px-8 text-sm hover:bg-[#77866E]/50 hover:text-white transition-colors",
-                              pathname === "/credit-allocation/entity-directory" && "bg-[#77866E]/50 text-white",
-                            )}
-                          >
-                            Entity Directory
-                          </Link>
-                        )
-                      })()}
-
-                      {/* My Recipients Link */}
-                      {(() => {
-                        if (isHiddenMenuItem("/credit-allocation/my-recipients")) return null
-                        return (
-                          <Link
-                            href="/credit-allocation/my-recipients"
-                            className={cn(
-                              "flex items-center py-2 px-8 text-sm hover:bg-[#77866E]/50 hover:text-white transition-colors",
-                              pathname === "/credit-allocation/my-recipients" && "bg-[#77866E]/50 text-white",
-                            )}
-                          >
-                            My Recipients
-                          </Link>
-                        )
-                      })()}
-                    </div>
-                  </div>
-
-                  {/* Reports & Analytics Section */}
-                  <div className="py-2 mt-2 border-t border-gray-700">
-                    <div className="px-4 py-1.5">
-                      <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Reports & Analytics
-                      </span>
-                    </div>
-                    <div className="space-y-1">
-                      {/* Allocation Summary Link */}
-                      {(() => {
-                        if (isHiddenMenuItem("/credit-allocation/allocation-summary")) return null
-                        return (
-                          <Link
-                            href="/credit-allocation/allocation-summary"
-                            className={cn(
-                              "flex items-center py-2 px-8 text-sm hover:bg-[#77866E]/50 hover:text-white transition-colors",
-                              pathname === "/credit-allocation/allocation-summary" && "bg-[#77866E]/50 text-white",
-                            )}
-                          >
-                            Allocation Summary
-                          </Link>
-                        )
-                      })()}
-
-                      {/* Usage Analytics Link */}
-                      {(() => {
-                        if (isHiddenMenuItem("/credit-allocation/usage-analytics")) return null
-                        return (
-                          <Link
-                            href="/credit-allocation/usage-analytics"
-                            className={cn(
-                              "flex items-center py-2 px-8 text-sm hover:bg-[#77866E]/50 hover:text-white transition-colors",
-                              pathname === "/credit-allocation/usage-analytics" && "bg-[#77866E]/50 text-white",
-                            )}
-                          >
-                            Usage Analytics
-                          </Link>
-                        )
-                      })()}
-
-                      {/* Distribution Reports Link */}
-                      {(() => {
-                        if (isHiddenMenuItem("/credit-allocation/distribution-reports")) return null
-                        return (
-                          <Link
-                            href="/credit-allocation/distribution-reports"
-                            className={cn(
-                              "flex items-center py-2 px-8 text-sm hover:bg-[#77866E]/50 hover:text-white transition-colors",
-                              pathname === "/credit-allocation/distribution-reports" && "bg-[#77866E]/50 text-white",
-                            )}
-                          >
-                            Distribution Reports
-                          </Link>
-                        )
-                      })()}
-
-                      {/* Forecasting Link */}
-                      {(() => {
-                        if (isHiddenMenuItem("/credit-allocation/forecasting")) return null
-                        return (
-                          <Link
-                            href="/credit-allocation/forecasting"
-                            className={cn(
-                              "flex items-center py-2 px-8 text-sm hover:bg-[#77866E]/50 hover:text-white transition-colors",
-                              pathname === "/credit-allocation/forecasting" && "bg-[#77866E]/50 text-white",
-                            )}
-                          >
-                            Forecasting
-                          </Link>
-                        )
-                      })()}
-                    </div>
-                  </div>
-
-                  {/* Audit & History Section */}
-                  <div className="py-2 mt-2 border-t border-gray-700">
-                    <div className="px-4 py-1.5">
-                      <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        Audit & History
-                      </span>
-                    </div>
-                    <div className="space-y-1">
-                      {/* Allocation Timeline Link */}
-                      {(() => {
-                        if (isHiddenMenuItem("/credit-allocation/allocation-timeline")) return null
-                        return (
-                          <Link
-                            href="/credit-allocation/allocation-timeline"
-                            className={cn(
-                              "flex items-center py-2 px-8 text-sm hover:bg-[#77866E]/50 hover:text-white transition-colors",
-                              pathname === "/credit-allocation/allocation-timeline" && "bg-[#77866E]/50 text-white",
-                            )}
-                          >
-                            Allocation Timeline
-                          </Link>
-                        )
-                      })()}
-
-                      {/* Change History Link */}
-                      {(() => {
-                        if (isHiddenMenuItem("/credit-allocation/change-history")) return null
-                        return (
-                          <Link
-                            href="/credit-allocation/change-history"
-                            className={cn(
-                              "flex items-center py-2 px-8 text-sm hover:bg-[#77866E]/50 hover:text-white transition-colors",
-                              pathname === "/credit-allocation/change-history" && "bg-[#77866E]/50 text-white",
-                            )}
-                          >
-                            Change History
-                          </Link>
-                        )
-                      })()}
-
-                      {/* Export & Reporting Link */}
-                      {(() => {
-                        if (isHiddenMenuItem("/credit-allocation/export-reporting")) return null
-                        return (
-                          <Link
-                            href="/credit-allocation/export-reporting"
-                            className={cn(
-                              "flex items-center py-2 px-8 text-sm hover:bg-[#77866E]/50 hover:text-white transition-colors",
-                              pathname === "/credit-allocation/export-reporting" && "bg-[#77866E]/50 text-white",
-                            )}
-                          >
-                            Export & Reporting
-                          </Link>
-                        )
-                      })()}
-                    </div>
-                  </div>
+                  <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                  <span className="text-xs sm:text-sm font-medium break-words">Credit Allocation</span>
                 </>
               )}
-            </CollapsibleContent>
-          </Collapsible>
+            </Link>
+          </SidebarMenuButton>
         </SidebarMenuItem>
 
         {/* Users Menu */}

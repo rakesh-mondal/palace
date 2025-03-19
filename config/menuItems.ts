@@ -13,41 +13,8 @@ export const menuItems = [
   },
   {
     href: "/credit-allocation",
-    label: "Credit allocation",
+    label: "Credit Allocation",
     icon: CreditCard,
-    subItems: [
-      {
-        label: "Hour Allocation Management",
-        subItems: [
-          { href: "/credit-allocation/create", label: "Create Allocation" },
-          { href: "/credit-allocation/internal-reservations", label: "Internal Reservations" },
-        ],
-      },
-      {
-        label: "Entity Management",
-        subItems: [
-          { href: "/credit-allocation/entity-directory", label: "Entity Directory" },
-          { href: "/credit-allocation/my-recipients", label: "My Recipients" },
-        ],
-      },
-      {
-        label: "Reports & Analytics",
-        subItems: [
-          { href: "/credit-allocation/allocation-summary", label: "Allocation Summary" },
-          { href: "/credit-allocation/usage-analytics", label: "Usage Analytics", hidden: true },
-          { href: "/credit-allocation/distribution-reports", label: "Distribution Reports", hidden: true },
-          { href: "/credit-allocation/forecasting", label: "Forecasting", hidden: true },
-        ],
-      },
-      {
-        label: "Audit & History",
-        subItems: [
-          { href: "/credit-allocation/allocation-timeline", label: "Allocation Timeline" },
-          { href: "/credit-allocation/change-history", label: "Change History", hidden: true },
-          { href: "/credit-allocation/export-reporting", label: "Export & Reporting", hidden: true },
-        ],
-      },
-    ],
   },
   {
     href: "/settings",

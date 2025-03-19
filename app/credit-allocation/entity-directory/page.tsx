@@ -17,8 +17,18 @@ import {
   Clock,
   ArrowUpRight,
   ArrowDownLeft,
+  Crown,
+  Building,
+  Briefcase,
+  Building2,
+  UserCircle,
+  Edit,
+  History,
+  Download,
 } from "lucide-react"
 import { DateRangeSelector } from "@/components/DateRangeSelector"
+import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
+import { Progress } from "@/components/ui/progress"
 
 // Mock data for entities
 const mockEntities = [
@@ -28,86 +38,110 @@ const mockEntities = [
     type: "Owner",
     role: "System Owner",
     hoursReceived: 10000,
-    hoursAllocated: 8500,
-    hoursReserved: 500,
-    availableHours: 1000,
+    hoursAllocated: 5000,
+    hoursReserved: 0,
+    availableHours: 5000,
     status: "Active",
     createdAt: "2023-01-01",
   },
   {
     id: "ent-002",
-    name: "Asia Pacific Development",
+    name: "ABC Development",
     type: "Developer",
-    role: "Regional Developer",
-    hoursReceived: 5000,
-    hoursAllocated: 3200,
-    hoursReserved: 800,
-    availableHours: 1000,
+    role: "Property Developer",
+    hoursReceived: 2000,
+    hoursAllocated: 1500,
+    hoursReserved: 0,
+    availableHours: 500,
     status: "Active",
     createdAt: "2023-02-15",
   },
   {
     id: "ent-003",
-    name: "Hong Kong Operations",
-    type: "Operator",
-    role: "Local Operator",
-    hoursReceived: 2500,
-    hoursAllocated: 1800,
-    hoursReserved: 200,
-    availableHours: 500,
+    name: "XYZ Builders",
+    type: "Developer",
+    role: "Property Developer",
+    hoursReceived: 1800,
+    hoursAllocated: 1200,
+    hoursReserved: 0,
+    availableHours: 600,
     status: "Active",
     createdAt: "2023-03-10",
   },
   {
     id: "ent-004",
-    name: "HSBC Corporate",
-    type: "Corporate",
-    role: "Corporate Client",
-    hoursReceived: 1000,
-    hoursAllocated: 800,
+    name: "Global Operations",
+    type: "Operator",
+    role: "Property Manager",
+    hoursReceived: 1500,
+    hoursAllocated: 1000,
     hoursReserved: 0,
-    availableHours: 200,
+    availableHours: 500,
     status: "Active",
     createdAt: "2023-04-05",
   },
   {
     id: "ent-005",
-    name: "CBRE",
-    type: "Corporate",
-    role: "Corporate Client",
-    hoursReceived: 800,
-    hoursAllocated: 600,
+    name: "City Managers",
+    type: "Operator",
+    role: "Property Manager",
+    hoursReceived: 1200,
+    hoursAllocated: 800,
     hoursReserved: 0,
-    availableHours: 200,
+    availableHours: 400,
     status: "Active",
     createdAt: "2023-05-20",
   },
   {
     id: "ent-006",
-    name: "CLSA",
+    name: "HSBC",
     type: "Corporate",
     role: "Corporate Client",
-    hoursReceived: 500,
-    hoursAllocated: 300,
+    hoursReceived: 1000,
+    hoursAllocated: 600,
     hoursReserved: 0,
-    availableHours: 200,
-    status: "Inactive",
+    availableHours: 400,
+    status: "Active",
     createdAt: "2023-06-15",
   },
   {
     id: "ent-007",
-    name: "John Smith",
-    type: "Employee",
-    role: "Corporate Employee",
-    hoursReceived: 50,
-    hoursAllocated: 0,
+    name: "CLSA",
+    type: "Corporate",
+    role: "Corporate Client",
+    hoursReceived: 800,
+    hoursAllocated: 500,
     hoursReserved: 0,
-    availableHours: 50,
+    availableHours: 300,
     status: "Active",
     createdAt: "2023-07-10",
   },
   {
     id: "ent-008",
+    name: "CBRE",
+    type: "Corporate",
+    role: "Corporate Client",
+    hoursReceived: 600,
+    hoursAllocated: 400,
+    hoursReserved: 0,
+    availableHours: 200,
+    status: "Active",
+    createdAt: "2023-08-05",
+  },
+  {
+    id: "ent-009",
+    name: "John Smith",
+    type: "Employee",
+    role: "Corporate Employee",
+    hoursReceived: 50,
+    hoursAllocated: 30,
+    hoursReserved: 0,
+    availableHours: 20,
+    status: "Active",
+    createdAt: "2023-09-12",
+  },
+  {
+    id: "ent-010",
     name: "Sarah Wong",
     type: "Employee",
     role: "Corporate Employee",
@@ -116,44 +150,33 @@ const mockEntities = [
     hoursReserved: 0,
     availableHours: 50,
     status: "Active",
-    createdAt: "2023-08-05",
-  },
-  {
-    id: "ent-009",
-    name: "Mark Johnson",
-    type: "Employee",
-    role: "Corporate Employee",
-    hoursReceived: 80,
-    hoursAllocated: 80,
-    hoursReserved: 0,
-    availableHours: 0,
-    status: "Expired",
-    createdAt: "2023-09-12",
-  },
-  {
-    id: "ent-010",
-    name: "Colliers International",
-    type: "Operator",
-    role: "Property Manager",
-    hoursReceived: 350,
-    hoursAllocated: 300,
-    hoursReserved: 50,
-    availableHours: 50,
-    status: "Active",
     createdAt: "2023-10-01",
   },
 ]
 
 // Mock data for hierarchy
 const mockHierarchy = {
-  allocatedFrom: [{ id: "ent-001", name: "Fitness First Global", type: "Owner", hours: 5000 }],
+  allocatedFrom: [{ id: "ent-001", name: "Fitness First Global", type: "Owner", hours: 10000 }],
   allocatedTo: [
-    { id: "ent-004", name: "HSBC Corporate", type: "Corporate", hours: 1000 },
-    { id: "ent-005", name: "CBRE", type: "Corporate", hours: 800 },
-    { id: "ent-006", name: "CLSA", type: "Corporate", hours: 500 },
-    { id: "ent-007", name: "John Smith", type: "Employee", hours: 50 },
-    { id: "ent-008", name: "Sarah Wong", type: "Employee", hours: 50 },
+    { id: "ent-002", name: "ABC Development", type: "Developer", hours: 2000 },
+    { id: "ent-003", name: "XYZ Builders", type: "Developer", hours: 1800 },
+    { id: "ent-004", name: "Global Operations", type: "Operator", hours: 1500 },
+    { id: "ent-005", name: "City Managers", type: "Operator", hours: 1200 },
+    { id: "ent-006", name: "HSBC", type: "Corporate", hours: 1000 },
+    { id: "ent-007", name: "CLSA", type: "Corporate", hours: 800 },
+    { id: "ent-008", name: "CBRE", type: "Corporate", hours: 600 },
+    { id: "ent-009", name: "John Smith", type: "Employee", hours: 50 },
+    { id: "ent-010", name: "Sarah Wong", type: "Employee", hours: 50 },
   ],
+}
+
+// Entity type icons
+const entityTypeIcons = {
+  Owner: <Crown className="h-4 w-4" />,
+  Developer: <Building className="h-4 w-4" />,
+  Operator: <Briefcase className="h-4 w-4" />,
+  Corporate: <Building2 className="h-4 w-4" />,
+  Employee: <UserCircle className="h-4 w-4" />,
 }
 
 export default function EntityDirectoryPage() {
@@ -272,286 +295,214 @@ export default function EntityDirectoryPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col space-y-8">
-        {/* Page Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Entity Directory</h1>
-            <p className="text-muted-foreground">Manage and view all entities in the credit allocation system</p>
-          </div>
-          <Button className="mt-4 md:mt-0" size="sm" onClick={() => setIsAddEntityModalOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Entity
-          </Button>
-        </div>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold">Entity Directory</h1>
+        <p className="text-gray-500">View and manage entities in the credit allocation hierarchy</p>
+      </div>
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main content */}
+        <div className="lg:col-span-2">
           <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total System Hours</p>
-                  <h3 className="text-2xl font-bold mt-1">{totalSystemHours.toLocaleString()}</h3>
+            <CardHeader>
+              <CardTitle>All Entities</CardTitle>
+              <CardDescription>View and manage all entities in the system</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <Input
+                      placeholder="Search entities..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-[300px]"
+                    />
+                    <Select defaultValue="all">
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Filter by type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Types</SelectItem>
+                        {Object.keys(entityTypeIcons).map((type) => (
+                          <SelectItem key={type} value={type.toLowerCase()}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-blue-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Hours Flowing Through Selected</p>
-                  <h3 className="text-2xl font-bold mt-1">
-                    {selectedEntity ? hoursFlowingThrough.toLocaleString() : "—"}
-                  </h3>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center">
-                  <ArrowUpRight className="h-6 w-6 text-purple-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Hours Utilized by Selected</p>
-                  <h3 className="text-2xl font-bold mt-1">{selectedEntity ? hoursUtilized.toLocaleString() : "—"}</h3>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-                  <ArrowDownLeft className="h-6 w-6 text-green-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Filters and Search */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="relative flex-grow">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
-                <Input
-                  placeholder="Search entities..."
-                  className="pl-10"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Select value={entityType} onValueChange={setEntityType}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Entity Type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Types</SelectItem>
-                    <SelectItem value="Owner">Owner</SelectItem>
-                    <SelectItem value="Developer">Developer</SelectItem>
-                    <SelectItem value="Operator">Operator</SelectItem>
-                    <SelectItem value="Corporate">Corporate</SelectItem>
-                    <SelectItem value="Employee">Employee</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select value={status} onValueChange={setStatus}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    <SelectItem value="Active">Active</SelectItem>
-                    <SelectItem value="Inactive">Inactive</SelectItem>
-                    <SelectItem value="Pending">Pending</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Button
-                  variant={showHierarchy ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setShowHierarchy(!showHierarchy)}
-                >
-                  <Users className="h-4 w-4 mr-2" />
-                  Hierarchy View
-                </Button>
-              </div>
-            </div>
-
-            <div className="mt-4">
-              <h3 className="text-sm font-medium mb-2">Date Range Filter</h3>
-              <DateRangeSelector dateRange={dateRange} onChange={setDateRange} />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Entity Table */}
-        <Card>
-          <CardHeader className="pb-0">
-            <CardTitle>Entities</CardTitle>
-            <CardDescription>{filteredEntities.length} entities found</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="flex items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-              </div>
-            ) : filteredEntities.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-64">
-                <Users className="h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900">No entities found</h3>
-                <p className="text-sm text-gray-500 mt-1">Try adjusting your search or filters</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-3 px-4 font-medium text-sm">Entity Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-sm">Entity Type</th>
-                      <th className="text-left py-3 px-4 font-medium text-sm">Role</th>
-                      <th className="text-right py-3 px-4 font-medium text-sm">Hours Received</th>
-                      <th className="text-right py-3 px-4 font-medium text-sm">Hours Allocated</th>
-                      <th className="text-right py-3 px-4 font-medium text-sm">Hours Reserved</th>
-                      <th className="text-right py-3 px-4 font-medium text-sm">Available Hours</th>
-                      <th className="text-center py-3 px-4 font-medium text-sm">Status</th>
-                      <th className="text-center py-3 px-4 font-medium text-sm">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead className="text-right">Hours Received</TableHead>
+                      <TableHead className="text-right">Hours Allocated</TableHead>
+                      <TableHead className="text-right">Hours Reserved</TableHead>
+                      <TableHead className="text-right">Available Hours</TableHead>
+                      <TableHead className="text-center">Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {filteredEntities.map((entity) => (
-                      <tr
+                      <TableRow
                         key={entity.id}
-                        className={`border-b hover:bg-gray-50 ${selectedEntity === entity.id ? "bg-blue-50" : ""}`}
+                        className={`cursor-pointer hover:bg-gray-50 ${
+                          selectedEntity === entity.id ? "bg-blue-50" : ""
+                        }`}
                         onClick={() => setSelectedEntity(entity.id)}
                       >
-                        <td className="py-4 px-4">{entity.name}</td>
-                        <td className="py-4 px-4">{getEntityTypeBadge(entity.type)}</td>
-                        <td className="py-4 px-4">{entity.role}</td>
-                        <td className="py-4 px-4 text-right">{entity.hoursReceived.toLocaleString()}</td>
-                        <td className="py-4 px-4 text-right">{entity.hoursAllocated.toLocaleString()}</td>
-                        <td className="py-4 px-4 text-right">{entity.hoursReserved.toLocaleString()}</td>
-                        <td className="py-4 px-4 text-right">{entity.availableHours.toLocaleString()}</td>
-                        <td className="py-4 px-4 text-center">{getStatusBadge(entity.status)}</td>
-                        <td className="py-4 px-4">
-                          <div className="flex items-center justify-center space-x-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              title="View Details"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleViewEntity(entity.id)
-                              }}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              title="Modify Allocations"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleEditEntity(entity.id)
-                              }}
-                            >
-                              <Edit2 className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              title="Revoke Allocations"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleRevokeEntity(entity.id)
-                              }}
-                            >
-                              <XCircle className="h-4 w-4" />
-                            </Button>
+                        <TableCell className="font-medium">
+                          <div className="flex items-center space-x-2">
+                            {entityTypeIcons[entity.type as keyof typeof entityTypeIcons]}
+                            <span>{entity.name}</span>
                           </div>
-                        </td>
-                      </tr>
+                        </TableCell>
+                        <TableCell>{entity.type}</TableCell>
+                        <TableCell>{entity.role}</TableCell>
+                        <TableCell className="text-right">{entity.hoursReceived.toLocaleString()}</TableCell>
+                        <TableCell className="text-right">{entity.hoursAllocated.toLocaleString()}</TableCell>
+                        <TableCell className="text-right">{entity.hoursReserved.toLocaleString()}</TableCell>
+                        <TableCell className="text-right">{entity.availableHours.toLocaleString()}</TableCell>
+                        <TableCell className="text-center">{getStatusBadge(entity.status)}</TableCell>
+                      </TableRow>
                     ))}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
 
-        {/* Hierarchy Visualization */}
-        {selectedEntity && (
+        {/* Sidebar */}
+        <div>
           <Card>
-            <CardHeader className="pb-0 flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Entity Hierarchy</CardTitle>
-                <CardDescription>View allocation relationships for {selectedEntityData?.name}</CardDescription>
-              </div>
-              <Button variant="outline" size="sm" onClick={() => setShowHierarchy(!showHierarchy)}>
-                {showHierarchy ? (
-                  <>
-                    <ChevronUp className="mr-2 h-4 w-4" />
-                    Hide Hierarchy
-                  </>
-                ) : (
-                  <>
-                    <ChevronDown className="mr-2 h-4 w-4" />
-                    Show Hierarchy
-                  </>
-                )}
-              </Button>
+            <CardHeader>
+              <CardTitle>Entity Details</CardTitle>
+              <CardDescription>View detailed information about the selected entity</CardDescription>
             </CardHeader>
-            {showHierarchy && (
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                  <div className="border rounded-lg p-4">
-                    <h3 className="text-sm font-medium mb-4">Hours Allocated From</h3>
-                    {mockHierarchy.allocatedFrom.length === 0 ? (
-                      <p className="text-sm text-gray-500">No allocations received</p>
-                    ) : (
-                      <ul className="space-y-3">
-                        {mockHierarchy.allocatedFrom.map((entity) => (
-                          <li key={entity.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
-                            <div className="flex items-center">
-                              <div className="mr-3">{getEntityTypeBadge(entity.type)}</div>
-                              <span>{entity.name}</span>
-                            </div>
-                            <span className="font-medium">{entity.hours.toLocaleString()} hours</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+            <CardContent>
+              {selectedEntity ? (
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">Entity Information</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Name:</span>
+                        <span className="font-medium">
+                          {mockEntities.find((e) => e.id === selectedEntity)?.name}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Type:</span>
+                        <span className="font-medium">
+                          {mockEntities.find((e) => e.id === selectedEntity)?.type}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Role:</span>
+                        <span className="font-medium">
+                          {mockEntities.find((e) => e.id === selectedEntity)?.role}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Created:</span>
+                        <span className="font-medium">
+                          {mockEntities.find((e) => e.id === selectedEntity)?.createdAt}
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="border rounded-lg p-4">
-                    <h3 className="text-sm font-medium mb-4">Hours Allocated To</h3>
-                    {mockHierarchy.allocatedTo.length === 0 ? (
-                      <p className="text-sm text-gray-500">No allocations made</p>
-                    ) : (
-                      <ul className="space-y-3">
-                        {mockHierarchy.allocatedTo.map((entity) => (
-                          <li key={entity.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
-                            <div className="flex items-center">
-                              <div className="mr-3">{getEntityTypeBadge(entity.type)}</div>
-                              <span>{entity.name}</span>
-                            </div>
-                            <span className="font-medium">{entity.hours.toLocaleString()} hours</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">Hours Summary</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Total Hours:</span>
+                        <span className="font-medium">
+                          {mockEntities.find((e) => e.id === selectedEntity)?.hoursReceived.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Allocated:</span>
+                        <span className="font-medium">
+                          {mockEntities.find((e) => e.id === selectedEntity)?.hoursAllocated.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Reserved:</span>
+                        <span className="font-medium">
+                          {mockEntities.find((e) => e.id === selectedEntity)?.hoursReserved.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Available:</span>
+                        <span className="font-medium">
+                          {mockEntities.find((e) => e.id === selectedEntity)?.availableHours.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="mt-2">
+                      <Progress
+                        value={
+                          ((mockEntities.find((e) => e.id === selectedEntity)?.hoursAllocated || 0) /
+                            (mockEntities.find((e) => e.id === selectedEntity)?.hoursReceived || 1)) *
+                          100
+                        }
+                        className="h-2"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">Hierarchy Position</h4>
+                    <div className="space-y-2">
+                      <div className="text-sm text-gray-500">
+                        {mockEntities.find((e) => e.id === selectedEntity)?.type === "Owner"
+                          ? "Top level entity in the hierarchy"
+                          : `Allocated by: ${
+                              mockHierarchy.allocatedFrom.find((a) => a.id === selectedEntity)?.name ||
+                              "Unknown"
+                            }`}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {mockHierarchy.allocatedTo.filter((a) => a.id === selectedEntity).length > 0
+                          ? `Allocated to: ${mockHierarchy.allocatedTo
+                              .filter((a) => a.id === selectedEntity)
+                              .map((a) => a.name)
+                              .join(", ")}`
+                          : "No allocations made to other entities"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <Button variant="outline" size="sm">
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit Entity
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <History className="mr-2 h-4 w-4" />
+                      View History
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Download className="mr-2 h-4 w-4" />
+                      Export Details
+                    </Button>
                   </div>
                 </div>
-              </CardContent>
-            )}
+              ) : (
+                <div className="text-center text-gray-500 py-8">
+                  Select an entity to view its details
+                </div>
+              )}
+            </CardContent>
           </Card>
-        )}
+        </div>
       </div>
     </div>
   )
