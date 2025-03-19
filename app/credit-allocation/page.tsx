@@ -1,5 +1,7 @@
 "use client"
 
+// Credit Allocation List View
+// This page displays all credit allocations with filtering and search capabilities
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
