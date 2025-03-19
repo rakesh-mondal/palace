@@ -1,3 +1,5 @@
+"use client"
+
 import { CreateAllocationForm } from "./CreateAllocationForm"
 import { useRouter } from "next/navigation"
 
