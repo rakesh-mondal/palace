@@ -148,7 +148,7 @@ const AppSidebar = ({ className }: SidebarProps) => {
               "flex items-center w-full cursor-pointer",
               isCollapsed
                 ? "p-0 h-10 justify-center data-[active=true]:bg-[#77866E]/50 data-[active=true]:text-white"
-                : "py-2 px-3 sm:px-4",
+                : "h-10 px-4",
               "hover:bg-[#77866E]/50 hover:text-white transition-colors",
               "data-[active=true]:bg-[#77866E]/50 data-[active=true]:text-white",
               "rounded-none",
