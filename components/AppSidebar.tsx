@@ -15,6 +15,7 @@ import {
   HardHat,
   Dumbbell,
   CreditCard,
+  Plus,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
@@ -140,35 +141,69 @@ const AppSidebar = ({ className }: SidebarProps) => {
 
         {/* Credit Allocation Menu */}
         <SidebarMenuItem>
-          <SidebarMenuButton
-            asChild
-            data-active={pathname.startsWith("/credit-allocation")}
-            className={cn(
-              "flex items-center w-full cursor-pointer",
-              isCollapsed
-                ? "p-0 h-10 justify-center data-[active=true]:bg-[#77866E]/50 data-[active=true]:text-white"
-                : "py-2 px-3 sm:px-4",
-              "hover:bg-[#77866E]/50 hover:text-white transition-colors",
-              "data-[active=true]:bg-[#77866E]/50 data-[active=true]:text-white",
-              "rounded-none",
-              "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
-              "whitespace-normal",
-            )}
-          >
-            <Link href="/credit-allocation" className="flex items-center gap-3 w-full">
-              {isCollapsed ? (
-                <div className="flex items-center justify-center w-10 h-10">
-                  <CreditCard className="w-5 h-5 text-gray-400" />
-                  <span className="sr-only">Credit Allocation</span>
+          <Collapsible open={isCreditOpen} onOpenChange={setIsCreditOpen}>
+            <CollapsibleTrigger asChild>
+              <SidebarMenuButton
+                className={cn(
+                  "flex items-center w-full cursor-pointer",
+                  isCollapsed
+                    ? "p-0 h-10 justify-center data-[active=true]:bg-[#77866E]/50 data-[active=true]:text-white"
+                    : "py-2 px-3 sm:px-4",
+                  "hover:bg-[#77866E]/50 hover:text-white transition-colors",
+                  "data-[active=true]:bg-[#77866E]/50 data-[active=true]:text-white",
+                  "rounded-none",
+                  "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+                  "whitespace-normal",
+                )}
+              >
+                {isCollapsed ? (
+                  <div className="flex items-center justify-center w-10 h-10">
+                    <CreditCard className="w-5 h-5 text-gray-400" />
+                    <span className="sr-only">Credit Allocation</span>
+                  </div>
+                ) : (
+                  <>
+                    <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                    <span className="text-xs sm:text-sm font-medium break-words flex-grow text-left">
+                      Credit Allocation
+                    </span>
+                    <ChevronDown
+                      className={cn(
+                        "w-4 h-4 transition-transform duration-200",
+                        isCreditOpen ? "rotate-180" : "rotate-0",
+                      )}
+                    />
+                  </>
+                )}
+              </SidebarMenuButton>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-1">
+              {!isCollapsed && (
+                <div className="space-y-1">
+                  <Link
+                    href="/credit-allocation"
+                    className={cn(
+                      "flex items-center py-2 px-8 text-sm hover:bg-[#77866E]/50 hover:text-white transition-colors",
+                      pathname === "/credit-allocation" && "bg-[#77866E]/50 text-white",
+                    )}
+                  >
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    All Allocations
+                  </Link>
+                  <Link
+                    href="/credit-allocation/create"
+                    className={cn(
+                      "flex items-center py-2 px-8 text-sm hover:bg-[#77866E]/50 hover:text-white transition-colors",
+                      pathname === "/credit-allocation/create" && "bg-[#77866E]/50 text-white",
+                    )}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Allocation
+                  </Link>
                 </div>
-              ) : (
-                <>
-                  <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-                  <span className="text-xs sm:text-sm font-medium break-words">Credit Allocation</span>
-                </>
               )}
-            </Link>
-          </SidebarMenuButton>
+            </CollapsibleContent>
+          </Collapsible>
         </SidebarMenuItem>
 
         {/* Users Menu */}
@@ -187,10 +222,6 @@ const AppSidebar = ({ className }: SidebarProps) => {
                   "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
                   "whitespace-normal",
                 )}
-                onClick={() => {
-                  setIsUsersOpen(!isUsersOpen)
-                  console.log("User Management submenu toggled:", isUsersOpen)
-                }}
               >
                 {isCollapsed ? (
                   <div className="flex items-center justify-center w-10 h-10">
@@ -461,7 +492,6 @@ const AppSidebar = ({ className }: SidebarProps) => {
     <Sidebar
       aria-label="Main navigation"
       collapsible="icon"
-      collapsed={isCollapsed ? "true" : undefined}
       className={cn(
         "border-r bg-[#242A34] flex-shrink-0 text-white hidden md:flex overflow-x-hidden",
         isCollapsed ? "w-16 min-w-16" : "w-64",
