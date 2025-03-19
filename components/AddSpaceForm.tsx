@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -58,11 +58,11 @@ const formSchema = z.object({
   openTime: z.string().min(1, "Open time is required"),
   closeTime: z.string().min(1, "Close time is required"),
   activityTypes: z.array(z.string()).min(1, "Select at least one activity type"),
-  features: z.array(z.string()),
+  features: z.array(z.string()).optional().default([]),
   coverPhoto: z.any().optional(),
   photos: z.any().optional(),
   photo360Url: z.string().url("Invalid URL").optional().or(z.literal("")),
-  equipments: z.array(z.string()),
+  equipments: z.array(z.string()).optional().default([]),
   accessType: z.string().min(1, "Access type is required"),
   status: z.string().min(1, "Status is required"),
   unavailableDates: z.array(
@@ -73,20 +73,15 @@ const formSchema = z.object({
         from: z.string(),
         to: z.string(),
         reason: z.string().optional()
-      })).optional()
+      })).optional().default([])
     })
-  ).optional(),
-  systemCalculatedHours: z.number().min(0),
-  availableHoursForAllocation: z.number().min(0).refine(
-    (val) => val <= (watch?.("systemCalculatedHours") || 0),
-    {
-      message: "Available hours for allocation cannot exceed system-calculated hours"
-    }
-  ),
-  propertyOwners: z.array(z.string()),
-  operators: z.array(z.string()),
-  organizations: z.array(z.string()),
-  managers: z.array(z.string()),
+  ).optional().default([]),
+  systemCalculatedHours: z.number().min(0).default(0),
+  availableHoursForAllocation: z.number().min(0),
+  propertyOwners: z.array(z.string()).min(1, "At least one property owner is required"),
+  operators: z.array(z.string()).optional().default([]),
+  organizations: z.array(z.string()).optional().default([]),
+  managers: z.array(z.string()).optional().default([]),
   proxyDoorId: z.string().optional(),
   vationxReaderId: z.string().optional(),
   vationxReaderGroupId: z.string().optional(),
@@ -104,7 +99,7 @@ interface AddSpaceFormProps {
 }
 
 export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers }: AddSpaceFormProps) {
-  const [currentStep, setCurrentStep] = useState(0)
+  const [currentStep, setCurrentStep] = useState<number>(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [customFeatures, setCustomFeatures] = useState<string[]>([])
   const [newFeature, setNewFeature] = useState("")
@@ -132,7 +127,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
       location: "",
       googleMapsLink: "",
       description: "",
-      capacityLimit: 0,
+      capacityLimit: 1,
       minimumBookingDuration: 0.5,
       openTime: "",
       closeTime: "",
@@ -156,6 +151,26 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
       vationxReaderGroupId: "",
     },
   })
+
+  useEffect(() => {
+    const subscription = watch((value, { name }) => {
+      if (name === "availableHoursForAllocation") {
+        const systemHours = value.systemCalculatedHours || 0
+        const allocatedHours = value.availableHoursForAllocation || 0
+        
+        if (allocatedHours > systemHours) {
+          setValue("availableHoursForAllocation", systemHours)
+          toast({
+            title: "Validation Error",
+            description: "Available hours for allocation cannot exceed system-calculated hours",
+            variant: "destructive",
+          })
+        }
+      }
+    })
+    
+    return () => subscription.unsubscribe()
+  }, [watch, setValue])
 
   const onFormSubmit = async (data: FormData) => {
     setIsSubmitting(true)
@@ -184,16 +199,32 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
     console.log("Current step before nextStep:", currentStep)
     if (currentStep < TOTAL_STEPS - 1) {
       const fieldsToValidate = getFieldsForStep(currentStep)
-      const isStepValid = await trigger(fieldsToValidate)
-      if (isStepValid) {
-        setCurrentStep((prev) => {
-          console.log("Moving to step:", prev + 1)
-          return prev + 1
-        })
-      } else {
+      console.log("Fields to validate:", fieldsToValidate)
+      try {
+        const isStepValid = await trigger(fieldsToValidate)
+        console.log("Step validation result:", isStepValid)
+        if (isStepValid) {
+          setCurrentStep((prev) => {
+            const nextStepValue = prev + 1
+            console.log("Moving to step:", nextStepValue)
+            return nextStepValue
+          })
+        } else {
+          const formErrors = Object.entries(errors)
+            .filter(([key]) => fieldsToValidate.includes(key as keyof FormData))
+            .map(([key, value]) => `${key}: ${value.message}`)
+          console.log("Validation errors:", formErrors)
+          toast({
+            title: "Please fix the following errors:",
+            description: formErrors.join('\n'),
+            variant: "destructive",
+          })
+        }
+      } catch (error) {
+        console.error("Validation error:", error)
         toast({
-          title: "Validation Error",
-          description: "Please fill in all required fields before proceeding.",
+          title: "Error",
+          description: "An error occurred while validating the form.",
           variant: "destructive",
         })
       }
@@ -212,22 +243,20 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
           "name",
           "district",
           "location",
-          "googleMapsLink",
           "description",
           "capacityLimit",
           "minimumBookingDuration",
           "openTime",
           "closeTime",
           "activityTypes",
-          "features",
           "status",
         ]
       case 1: // Media & Equipment
-        return ["coverPhoto", "photos", "photo360Url", "equipments"]
+        return [] // Make media fields optional
       case 2: // Access & Availability
-        return ["accessType", "unavailableDates", "proxyDoorId", "vationxReaderId", "vationxReaderGroupId"]
+        return ["accessType"] // Only require access type
       case 3: // Entity Relationships
-        return ["propertyOwners", "operators", "organizations", "managers"]
+        return ["propertyOwners"] // Only require property owners
       default:
         return []
     }
@@ -301,16 +330,18 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
 
   return (
     <form onSubmit={handleSubmit(onFormSubmit)} className="p-4 sm:p-6 space-y-4 pb-16">
-      <Stepper steps={steps} currentStep={currentStep} className="mb-4" />
+      <Stepper 
+        currentStep={currentStep} 
+        steps={steps}
+        onStepClick={setCurrentStep}
+      />
 
       <div className="space-y-4 max-h-[60vh] overflow-y-auto px-2">
         {currentStep === 0 && (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-xs font-medium">
-                  Space Name
-                </Label>
+                <Label>Space Name</Label>
                 <Controller
                   name="name"
                   control={control}
@@ -319,14 +350,15 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
                 {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="district" className="text-xs font-medium">
-                  District
-                </Label>
+                <Label>District</Label>
                 <Controller
                   name="district"
                   control={control}
                   render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select 
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
                       <SelectTrigger className="h-10">
                         <SelectValue placeholder="Select district" />
                       </SelectTrigger>
@@ -344,9 +376,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-3">
                 <div className="space-y-2">
-                  <Label htmlFor="location" className="text-xs font-medium">
-                    Location
-                  </Label>
+                  <Label>Location</Label>
                   <Controller
                     name="location"
                     control={control}
@@ -355,9 +385,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
                   {errors.location && <p className="text-red-500 text-xs">{errors.location.message}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="googleMapsLink" className="text-xs font-medium">
-                    Google Maps Link
-                  </Label>
+                  <Label>Google Maps Link</Label>
                   <div className="relative flex items-center">
                     <div className="absolute left-3 flex items-center pointer-events-none">
                       <LinkIcon className="h-4 w-4 text-gray-400" />
@@ -379,9 +407,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="description" className="text-xs font-medium">
-                  Description
-                </Label>
+                <Label>Description</Label>
                 <Controller
                   name="description"
                   control={control}
@@ -392,17 +418,14 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label htmlFor="capacityLimit" className="text-xs font-medium">
-                  Capacity Limit
-                </Label>
+                <Label>Capacity Limit</Label>
                 <Controller
                   name="capacityLimit"
                   control={control}
                   render={({ field }) => (
                     <Input
-                      {...field}
-                      id="capacityLimit"
                       type="number"
+                      {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                       className="h-10"
                     />
@@ -411,9 +434,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
                 {errors.capacityLimit && <p className="text-red-500 text-xs">{errors.capacityLimit.message}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="minimumBookingDuration" className="text-xs font-medium">
-                  Minimum Booking Duration (hours)
-                </Label>
+                <Label>Minimum Booking Duration (hours)</Label>
                 <Controller
                   name="minimumBookingDuration"
                   control={control}
@@ -437,9 +458,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label htmlFor="openTime" className="text-xs font-medium">
-                  Open Time
-                </Label>
+                <Label>Open Time</Label>
                 <Controller
                   name="openTime"
                   control={control}
@@ -448,9 +467,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
                 {errors.openTime && <p className="text-red-500 text-xs">{errors.openTime.message}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="closeTime" className="text-xs font-medium">
-                  Close Time
-                </Label>
+                <Label>Close Time</Label>
                 <Controller
                   name="closeTime"
                   control={control}
@@ -460,7 +477,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-medium">Activity Types</Label>
+              <Label>Activity Types</Label>
               <Controller
                 name="activityTypes"
                 control={control}
@@ -496,7 +513,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
             </div>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label className="text-xs font-medium">Features</Label>
+                <Label>Features</Label>
                 <Dialog open={isAddFeatureOpen} onOpenChange={setIsAddFeatureOpen}>
                   <DialogTrigger asChild>
                     <Button variant="outline" size="sm" className="h-8 flex items-center gap-2">
@@ -511,7 +528,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                       <div className="space-y-2">
-                        <Label className="text-xs font-medium">Feature Name</Label>
+                        <Label>Feature Name</Label>
                         <Input
                           placeholder="Enter feature name"
                           value={newFeature}
@@ -561,7 +578,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
                           />
                         )}
                       />
-                      <Label htmlFor={`feature-${feature}`} className="text-xs font-medium">
+                      <Label>
                         {feature}
                       </Label>
                     </div>
@@ -580,9 +597,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="status" className="text-xs font-medium">
-                Space Status
-              </Label>
+              <Label>Space Status</Label>
               <Controller
                 name="status"
                 control={control}
@@ -621,9 +636,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
         {currentStep === 1 && (
           <>
             <div className="space-y-2">
-              <Label htmlFor="coverPhoto" className="text-xs font-medium">
-                Cover Photo
-              </Label>
+              <Label>Cover Photo</Label>
               <Controller
                 name="coverPhoto"
                 control={control}
@@ -665,9 +678,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="photos" className="text-xs font-medium">
-                Additional Photos
-              </Label>
+              <Label>Additional Photos</Label>
               <Controller
                 name="photos"
                 control={control}
@@ -711,9 +722,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="photo360Url" className="text-xs font-medium">
-                360° Photo URL
-              </Label>
+              <Label>360° Photo URL</Label>
               <div className="relative flex items-center">
                 <div className="absolute left-3 flex items-center pointer-events-none">
                   <Link className="h-4 w-4 text-gray-400" />
@@ -736,7 +745,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
 
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label className="text-xs font-medium">Available Equipment</Label>
+                <Label>Available Equipment</Label>
                 <Dialog open={isAddEquipmentOpen} onOpenChange={setIsAddEquipmentOpen}>
                   <DialogTrigger asChild>
                     <Button variant="outline" size="sm" className="h-8 flex items-center gap-2">
@@ -751,7 +760,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                       <div className="space-y-2">
-                        <Label className="text-xs font-medium">Equipment Name</Label>
+                        <Label>Equipment Name</Label>
                         <Input
                           placeholder="Enter equipment name"
                           value={newEquipment}
@@ -801,7 +810,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
                           />
                         )}
                       />
-                      <Label htmlFor={`equipment-${equipment}`} className="text-xs font-medium">
+                      <Label>
                         {equipment}
                       </Label>
                     </div>
@@ -1076,7 +1085,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
             <h3 className="text-lg font-medium mb-4">Entity Relationships</h3>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-xs font-medium">Property Owners</Label>
+                <Label>Property Owners</Label>
                 <Controller
                   name="propertyOwners"
                   control={control}
@@ -1093,7 +1102,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-xs font-medium">Operators</Label>
+                <Label>Operators</Label>
                 <Controller
                   name="operators"
                   control={control}
@@ -1110,7 +1119,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-xs font-medium">Organizations</Label>
+                <Label>Organizations</Label>
                 <Controller
                   name="organizations"
                   control={control}
@@ -1127,7 +1136,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-xs font-medium">Managers</Label>
+                <Label>Managers</Label>
                 <Controller
                   name="managers"
                   control={control}
