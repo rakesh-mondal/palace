@@ -27,8 +27,23 @@ import {
   Download,
 } from "lucide-react"
 import { DateRangeSelector } from "@/components/DateRangeSelector"
-import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { Progress } from "@/components/ui/progress"
+import { Badge } from "@/components/ui/badge"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { MoreHorizontal, Trash2 } from "lucide-react"
 
 // Mock data for entities
 const mockEntities = [
