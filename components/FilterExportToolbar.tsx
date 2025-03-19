@@ -32,44 +32,54 @@ export function FilterExportToolbar({
   userType,
 }: FilterExportToolbarProps) {
   return (
-    <div className="flex justify-between items-center space-x-4">
+    <div className="flex items-center gap-4">
       <div className="flex-1 relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
         <Input
           type="text"
           placeholder="Search users..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10 h-9"
+          className="form-input pl-10"
           aria-label="Search users"
         />
       </div>
-      {selectedUsers.length > 0 && (
-        <Button variant="outline" size="sm" className="h-9" onClick={onDeleteSelected}>
-          <Trash2 className="w-4 h-4 mr-2" />
-          Delete Selected ({selectedUsers.length})
+      
+      <div className="flex items-center gap-2">
+        {selectedUsers.length > 0 && (
+          <Button 
+            variant="outline" 
+            className="button-padding-sm text-destructive hover:text-destructive-foreground hover:bg-destructive"
+            onClick={onDeleteSelected}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete Selected ({selectedUsers.length})
+          </Button>
+        )}
+        
+        <Select value={filterStatus} onValueChange={onFilterChange}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="All Statuses">All Statuses</SelectItem>
+            <SelectItem value="Active">Active</SelectItem>
+            <SelectItem value="Inactive">Inactive</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <CSVLink data={exportData} filename={exportFilename} className="no-underline">
+          <Button variant="outline" className="button-padding-sm">
+            <Download className="h-4 w-4 mr-2" />
+            Export CSV
+          </Button>
+        </CSVLink>
+
+        <Button className="button-padding-sm" onClick={onAddUser}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add {userType}
         </Button>
-      )}
-      <Select value={filterStatus} onValueChange={onFilterChange} aria-label="Filter by status">
-        <SelectTrigger className="w-[180px] h-9">
-          <SelectValue placeholder="Filter by status" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="All Statuses">All Statuses</SelectItem>
-          <SelectItem value="Active">Active</SelectItem>
-          <SelectItem value="Inactive">Inactive</SelectItem>
-        </SelectContent>
-      </Select>
-      <CSVLink data={exportData} filename={exportFilename}>
-        <Button variant="outline" size="sm" className="flex items-center gap-2" aria-label="Export data as CSV">
-          <Download className="w-4 h-4" />
-          Export CSV
-        </Button>
-      </CSVLink>
-      <Button onClick={onAddUser} size="sm" className="flex items-center gap-2">
-        <Plus className="w-4 h-4" />
-        Add {userType}
-      </Button>
+      </div>
     </div>
   )
 }

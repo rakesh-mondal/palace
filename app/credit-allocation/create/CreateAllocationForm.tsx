@@ -24,6 +24,15 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 
 const formSchema = z.object({
+  month: z.string({
+    required_error: "Please select a month.",
+  }),
+  year: z.string({
+    required_error: "Please select a year.",
+  }),
+  spaceName: z.string({
+    required_error: "Please select a space.",
+  }),
   recipientType: z.string({
     required_error: "Please select a recipient type.",
   }),
@@ -32,12 +41,6 @@ const formSchema = z.object({
   }),
   hours: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
     message: "Please enter a valid number of hours.",
-  }),
-  month: z.string({
-    required_error: "Please select a month.",
-  }),
-  year: z.string({
-    required_error: "Please select a year.",
   }),
   terms: z.boolean().refine((val) => val === true, {
     message: "You must agree to the terms.",
@@ -50,15 +53,17 @@ interface CreateAllocationFormProps {
 
 export function CreateAllocationForm({ onSuccess }: CreateAllocationFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [availableHours, setAvailableHours] = useState(100) // This would come from your API based on space selection
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      month: "",
+      year: "",
+      spaceName: "",
       recipientType: "",
       recipient: "",
       hours: "",
-      month: "",
-      year: "",
       terms: false,
     },
   })
@@ -79,6 +84,90 @@ export function CreateAllocationForm({ onSuccess }: CreateAllocationFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="month"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Month</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select month" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="1">January</SelectItem>
+                    <SelectItem value="2">February</SelectItem>
+                    <SelectItem value="3">March</SelectItem>
+                    <SelectItem value="4">April</SelectItem>
+                    <SelectItem value="5">May</SelectItem>
+                    <SelectItem value="6">June</SelectItem>
+                    <SelectItem value="7">July</SelectItem>
+                    <SelectItem value="8">August</SelectItem>
+                    <SelectItem value="9">September</SelectItem>
+                    <SelectItem value="10">October</SelectItem>
+                    <SelectItem value="11">November</SelectItem>
+                    <SelectItem value="12">December</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="year"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Year</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select year" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="2024">2024</SelectItem>
+                    <SelectItem value="2025">2025</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="spaceName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Space Name</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select space" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="space-1">Palace One</SelectItem>
+                  <SelectItem value="space-2">Palace Two</SelectItem>
+                  <SelectItem value="space-3">Palace Three</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="p-4 bg-muted rounded-lg">
+          <div className="text-sm font-medium">Available Hours to Allocate</div>
+          <div className="text-2xl font-bold mt-1">{availableHours} hours</div>
+        </div>
+
         <FormField
           control={form.control}
           name="recipientType"
@@ -139,62 +228,6 @@ export function CreateAllocationForm({ onSuccess }: CreateAllocationFormProps) {
             </FormItem>
           )}
         />
-
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="month"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Month</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select month" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="1">January</SelectItem>
-                    <SelectItem value="2">February</SelectItem>
-                    <SelectItem value="3">March</SelectItem>
-                    <SelectItem value="4">April</SelectItem>
-                    <SelectItem value="5">May</SelectItem>
-                    <SelectItem value="6">June</SelectItem>
-                    <SelectItem value="7">July</SelectItem>
-                    <SelectItem value="8">August</SelectItem>
-                    <SelectItem value="9">September</SelectItem>
-                    <SelectItem value="10">October</SelectItem>
-                    <SelectItem value="11">November</SelectItem>
-                    <SelectItem value="12">December</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="year"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Year</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select year" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="2024">2024</SelectItem>
-                    <SelectItem value="2025">2025</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
 
         <FormField
           control={form.control}

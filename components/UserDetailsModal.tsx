@@ -86,273 +86,40 @@ export function UserDetailsModal({ user, isOpen, onClose, onDeactivate, onFlag }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col p-0">
-        {/* Header */}
-        <DialogHeader className="px-6 py-4 border-b bg-background sticky top-0 z-10">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader className="container-padding border-b bg-background sticky top-0 z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <User className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <DialogTitle className="text-xl font-bold flex items-center gap-2">
+                <DialogTitle className="text-xl font-semibold flex items-center gap-2">
                   {user.fullName}
                   {user.vipStatus && (
-                    <Badge variant="outline" className="bg-yellow-100 text-yellow-800 ml-2">
-                      <Award className="w-3 h-3 mr-1" />
+                    <Badge variant="default" className="ml-2">
                       VIP
                     </Badge>
                   )}
                 </DialogTitle>
-                <p className="text-sm text-muted-foreground">ID: {user.userId}</p>
+                <p className="text-body-sm text-muted-foreground mt-1">
+                  {user.userType} · {user.email}
+                </p>
               </div>
             </div>
-            <Badge variant="outline" className={getStatusColor(user.status)}>
-              {user.status === "Active" ? (
-                <CheckCircle className="w-3 h-3 mr-1" />
-              ) : (
-                <XCircle className="w-3 h-3 mr-1" />
-              )}
-              {user.status}
-            </Badge>
-          </div>
-        </DialogHeader>
-
-        {/* Content */}
-        <div className="flex-grow overflow-y-auto p-6 space-y-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Left Column */}
-            <div className="space-y-6">
-              {/* Basic Information Card */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base font-semibold flex items-center gap-2">
-                    <User className="h-4 w-4" />
-                    Basic Information
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-[20px_1fr] gap-2 items-center">
-                    <Mail className="w-4 h-4 text-muted-foreground" />
-                    <span>{user.email}</span>
-                  </div>
-                  <div className="grid grid-cols-[20px_1fr] gap-2 items-center">
-                    <Phone className="w-4 h-4 text-muted-foreground" />
-                    <span>{user.mobileNumber}</span>
-                  </div>
-                  <div className="grid grid-cols-[20px_1fr] gap-2 items-center">
-                    <Building2 className="w-4 h-4 text-muted-foreground" />
-                    <span>
-                      {user.corporateAssociations.length > 0 ? user.corporateAssociations.join(", ") : "None"}
-                    </span>
-                  </div>
-                  <Separator />
-                  <div className="pt-2">
-                    <Badge variant="secondary">{user.userType}</Badge>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Booking Statistics Card */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base font-semibold flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    Booking Statistics
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <p className="text-sm text-muted-foreground">Total Bookings</p>
-                      <p className="text-2xl font-bold">{user.totalBookings}</p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-sm text-muted-foreground">Cancellation Rate</p>
-                      <p className="text-2xl font-bold">{user.bookingCancellationRate}%</p>
-                    </div>
-                  </div>
-                  <Separator className="my-4" />
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm">Last Booking</span>
-                      </div>
-                      <span className="text-sm font-medium">{formatDate(user.lastBookingDate)}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Right Column */}
-            <div className="space-y-6">
-              {/* Upcoming Bookings Card */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base font-semibold flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    Upcoming Bookings
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {user.upcomingBookings.length > 0 ? (
-                    <div className="space-y-3">
-                      {user.upcomingBookings.map((booking, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <MapPin className="w-4 h-4 text-muted-foreground" />
-                            <div>
-                              <p className="font-medium">{booking.space}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {booking.date} at {booking.time}
-                              </p>
-                            </div>
-                          </div>
-                          <Badge variant="secondary">{booking.type}</Badge>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">No upcoming bookings</p>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Packages Card */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base font-semibold flex items-center gap-2">
-                    <Package className="h-4 w-4" />
-                    Active Packages
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {user.spacePackages.length > 0 && (
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Space Packages</h4>
-                      {user.spacePackages.map((pkg, index) => (
-                        <div key={index} className="p-2 bg-muted rounded-lg text-sm">
-                          {pkg.packageDetails}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {user.trainerPackages.length > 0 && (
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Trainer Packages</h4>
-                      {user.trainerPackages.map((pkg, index) => (
-                        <div key={index} className="flex justify-between items-center p-2 bg-muted rounded-lg text-sm">
-                          <span>{pkg.trainerName}</span>
-                          <Badge variant="secondary">{pkg.packageDetails}</Badge>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  <Separator />
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Free Trials</span>
-                    <Badge variant={user.freeTrials ? "success" : "secondary"}>
-                      {user.freeTrials ? "Active" : "Not Active"}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          {/* Financial Information Card - Full Width */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base font-semibold flex items-center gap-2">
-                <CreditCard className="h-4 w-4" />
-                Financial Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-                    <DollarSign className="h-6 w-6 text-green-700" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total Payments</p>
-                    <p className="text-2xl font-bold">{formatCurrency(user.totalPaymentSummary)}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center">
-                    <AlertTriangle className="h-6 w-6 text-red-700" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Outstanding Dues</p>
-                    <p className={`text-2xl font-bold ${user.outstandingDues > 0 ? "text-red-600" : ""}`}>
-                      {formatCurrency(user.outstandingDues)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Footer */}
-        <div className="border-t bg-muted/50 p-4 sticky bottom-0">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" />
-                <span>Created: {formatDate(user.createdAt)}</span>
-              </div>
-              <Separator orientation="vertical" className="h-4" />
-              <div className="flex items-center gap-1">
-                <Clock className="w-4 h-4" />
-                <span>Updated: {formatDate(user.updatedAt)}</span>
-              </div>
-            </div>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-red-600 border-red-200 hover:border-red-400 hover:bg-red-50"
-                  >
-                    <XCircle className="w-4 h-4 mr-2" />
-                    Deactivate User
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action will deactivate the user. They will no longer be able to access the system.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={onDeactivate}>Deactivate</AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-yellow-600 border-yellow-200 hover:border-yellow-400 hover:bg-yellow-50"
-                  >
-                    <Flag className="w-4 h-4 mr-2" />
+                  <Button variant="outline" className="button-padding-md">
+                    <Flag className="h-4 w-4 mr-2" />
                     Flag User
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogTitle>Flag this user?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This action will flag the user for review. Their account may be restricted.
+                      This will mark the user for review. The user will be notified and their access may be restricted.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -361,6 +128,161 @@ export function UserDetailsModal({ user, isOpen, onClose, onDeactivate, onFlag }
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" className="button-padding-md">
+                    <XCircle className="h-4 w-4 mr-2" />
+                    Deactivate
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Deactivate this user?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will prevent the user from accessing the system. All their current bookings will be cancelled.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={onDeactivate}>Deactivate</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </div>
+        </DialogHeader>
+
+        <div className="flex-1 overflow-y-auto">
+          <div className="container-padding">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* User Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold">User Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center text-body-sm">
+                      <Mail className="h-4 w-4 text-muted-foreground mr-2" />
+                      {user.email}
+                    </div>
+                    <div className="flex items-center text-body-sm">
+                      <Phone className="h-4 w-4 text-muted-foreground mr-2" />
+                      {user.mobileNumber}
+                    </div>
+                    {user.corporateAssociations.length > 0 && (
+                      <div className="flex items-center text-body-sm">
+                        <Building2 className="h-4 w-4 text-muted-foreground mr-2" />
+                        {user.corporateAssociations.join(", ")}
+                      </div>
+                    )}
+                  </div>
+                  <Separator />
+                  <div className="space-y-2">
+                    <div className="flex items-center text-body-sm">
+                      <Calendar className="h-4 w-4 text-muted-foreground mr-2" />
+                      Created: {formatDate(user.createdAt)}
+                    </div>
+                    <div className="flex items-center text-body-sm">
+                      <Clock className="h-4 w-4 text-muted-foreground mr-2" />
+                      Last Updated: {formatDate(user.updatedAt)}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Booking Statistics */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold">Booking Statistics</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <p className="text-body-sm text-muted-foreground">Total Bookings</p>
+                      <p className="text-2xl font-semibold">{user.totalBookings}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-body-sm text-muted-foreground">Cancellation Rate</p>
+                      <p className="text-2xl font-semibold">{user.bookingCancellationRate}%</p>
+                    </div>
+                  </div>
+                  <Separator />
+                  <div className="space-y-2">
+                    <p className="text-body-sm text-muted-foreground">Spaces Accessed</p>
+                    <div className="flex flex-wrap gap-2">
+                      {user.spacesAccessed.map((space) => (
+                        <Badge key={space} variant="secondary">
+                          {space}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Packages & Subscriptions */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold">Packages & Subscriptions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {user.trainerPackages.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-body-sm text-muted-foreground">Trainer Packages</p>
+                      <div className="space-y-2">
+                        {user.trainerPackages.map((pkg, index) => (
+                          <div key={index} className="flex items-start gap-2 p-2 bg-muted rounded-md">
+                            <Package className="h-4 w-4 text-muted-foreground mt-0.5" />
+                            <div>
+                              <p className="text-body-sm font-medium">{pkg.trainerName}</p>
+                              <p className="text-body-sm text-muted-foreground">{pkg.packageDetails}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {user.spacePackages.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-body-sm text-muted-foreground">Space Packages</p>
+                      <div className="space-y-2">
+                        {user.spacePackages.map((pkg, index) => (
+                          <div key={index} className="flex items-start gap-2 p-2 bg-muted rounded-md">
+                            <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                            <p className="text-body-sm">{pkg.packageDetails}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Payment Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold">Payment Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1 text-body-sm text-muted-foreground">
+                        <CreditCard className="h-4 w-4" />
+                        Total Payments
+                      </div>
+                      <p className="text-2xl font-semibold">${user.totalPaymentSummary}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1 text-body-sm text-muted-foreground">
+                        <DollarSign className="h-4 w-4" />
+                        Outstanding
+                      </div>
+                      <p className="text-2xl font-semibold text-destructive">${user.outstandingDues}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>

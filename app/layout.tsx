@@ -19,7 +19,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <title>Palace Studio</title>
       </head>
-      <body className={`${hankenGrotesk.variable} font-sans flex flex-col h-screen overflow-hidden`}>
+      <body 
+        suppressHydrationWarning
+        className={`${hankenGrotesk.variable} font-sans flex flex-col h-screen overflow-hidden`}
+      >
         <SidebarProvider>
           <div className="flex flex-1 overflow-hidden">
             <AppSidebar className="hidden md:flex" />

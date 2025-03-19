@@ -9,14 +9,16 @@ import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Label } from "@/components/ui/label"
 
 export type DateRangeSelectorProps = {
   date: DateRange | undefined
   onDateChange: (date: DateRange | undefined) => void
   className?: string
+  label?: string
 }
 
-export function DateRangeSelector({ date, onDateChange, className }: DateRangeSelectorProps) {
+export function DateRangeSelector({ date, onDateChange, className, label }: DateRangeSelectorProps) {
   const [isCalendarOpen, setIsCalendarOpen] = React.useState(false)
 
   const presets = [
@@ -34,13 +36,18 @@ export function DateRangeSelector({ date, onDateChange, className }: DateRangeSe
   }
 
   return (
-    <div className={cn("grid gap-2", className)}>
+    <div className={cn("space-y-2", className)}>
+      {label && <Label className="form-label">{label}</Label>}
       <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
         <PopoverTrigger asChild>
           <Button
             id="date"
-            variant={"outline"}
-            className={cn("w-[260px] justify-start text-left font-normal", !date && "text-muted-foreground")}
+            variant="outline"
+            className={cn(
+              "w-[260px] justify-start text-left font-normal",
+              !date && "text-muted-foreground",
+              "button-padding-md"
+            )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {date?.from ? (
@@ -57,27 +64,36 @@ export function DateRangeSelector({ date, onDateChange, className }: DateRangeSe
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          <Select onValueChange={handlePresetChange}>
-            <SelectTrigger className="w-[260px]">
-              <SelectValue placeholder="Select a preset" />
-            </SelectTrigger>
-            <SelectContent>
-              {presets.map((preset) => (
-                <SelectItem key={preset.value} value={preset.value}>
-                  {preset.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Calendar
-            initialFocus
-            mode="range"
-            defaultMonth={date?.from}
-            selected={date}
-            onSelect={onDateChange}
-            numberOfMonths={1}
-            disabled={(date) => date > new Date() || date < new Date("2000-01-01")}
-          />
+          <div className="space-y-4 p-4">
+            <div className="space-y-2">
+              <Label className="form-label">Preset Ranges</Label>
+              <Select onValueChange={handlePresetChange}>
+                <SelectTrigger className="w-[260px]">
+                  <SelectValue placeholder="Select a preset range" />
+                </SelectTrigger>
+                <SelectContent>
+                  {presets.map((preset) => (
+                    <SelectItem key={preset.value} value={preset.value}>
+                      {preset.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label className="form-label">Custom Range</Label>
+              <Calendar
+                initialFocus
+                mode="range"
+                defaultMonth={date?.from}
+                selected={date}
+                onSelect={onDateChange}
+                numberOfMonths={1}
+                disabled={(date) => date > new Date() || date < new Date("2000-01-01")}
+                className="rounded-md border"
+              />
+            </div>
+          </div>
         </PopoverContent>
       </Popover>
     </div>

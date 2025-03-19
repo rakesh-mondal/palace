@@ -4,5 +4,11 @@ export interface Space {
   type: string
   capacity: number
   status: string
+  district: string
+  location: string
+  capacityLimit: number
+  openTime: string
+  closeTime: string
+  activityTypes: string[]
 }
 

@@ -329,28 +329,34 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
   console.log("Rendering step:", currentStep)
 
   return (
-    <form onSubmit={handleSubmit(onFormSubmit)} className="p-4 sm:p-6 space-y-4 pb-16">
+    <form onSubmit={handleSubmit(onFormSubmit)} className="container-padding">
       <Stepper 
         currentStep={currentStep} 
         steps={steps}
         onStepClick={setCurrentStep}
+        className="mb-6"
       />
 
-      <div className="space-y-4 max-h-[60vh] overflow-y-auto px-2">
+      <div className="space-y-6 max-h-[60vh] overflow-y-auto px-2">
         {currentStep === 0 && (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="form-group">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Space Name</Label>
+                <Label className="form-label">Space Name</Label>
                 <Controller
                   name="name"
                   control={control}
-                  render={({ field }) => <Input {...field} id="name" className="h-10" />}
+                  render={({ field }) => (
+                    <Input {...field} className="form-input" />
+                  )}
                 />
-                {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
+                {errors.name && (
+                  <p className="text-caption text-destructive">{errors.name.message}</p>
+                )}
               </div>
+              
               <div className="space-y-2">
-                <Label>District</Label>
+                <Label className="form-label">District</Label>
                 <Controller
                   name="district"
                   control={control}
@@ -359,7 +365,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
                       value={field.value}
                       onValueChange={field.onChange}
                     >
-                      <SelectTrigger className="h-10">
+                      <SelectTrigger>
                         <SelectValue placeholder="Select district" />
                       </SelectTrigger>
                       <SelectContent>
@@ -370,7 +376,9 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
                     </Select>
                   )}
                 />
-                {errors.district && <p className="text-red-500 text-xs">{errors.district.message}</p>}
+                {errors.district && (
+                  <p className="text-caption text-destructive">{errors.district.message}</p>
+                )}
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -631,7 +639,7 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
               />
               {errors.status && <p className="text-red-500 text-xs">{errors.status.message}</p>}
             </div>
-          </>
+          </div>
         )}
         {currentStep === 1 && (
           <>
@@ -1157,21 +1165,38 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
         )}
       </div>
 
-      <div className="flex justify-end space-x-2 pt-4 border-t">
-        {currentStep > 0 && (
-          <Button type="button" onClick={prevStep} variant="outline" className="h-8 w-full sm:w-auto">
-            Previous
+      <div className="flex items-center justify-between mt-6 border-t pt-4">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          className="button-padding-md"
+        >
+          Cancel
+        </Button>
+        <div className="flex space-x-2">
+          {currentStep > 0 && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={prevStep}
+              className="button-padding-md"
+            >
+              Previous
+            </Button>
+          )}
+          <Button
+            type={currentStep === steps.length - 1 ? "submit" : "button"}
+            onClick={currentStep === steps.length - 1 ? undefined : nextStep}
+            className="button-padding-md"
+            disabled={currentStep === steps.length - 1 && (!isValid || isSubmitting)}
+          >
+            {currentStep === steps.length - 1 
+              ? (isSubmitting ? "Creating Space..." : "Create Space")
+              : "Next"
+            }
           </Button>
-        )}
-        {currentStep < TOTAL_STEPS - 1 ? (
-          <Button type="button" onClick={nextStep} className="h-8 w-full sm:w-auto">
-            Next
-          </Button>
-        ) : (
-          <Button type="button" onClick={nextStep} disabled={isSubmitting || !isValid} className="h-8">
-            {isSubmitting ? "Creating Space..." : "Create Space"}
-          </Button>
-        )}
+        </div>
       </div>
     </form>
   )
