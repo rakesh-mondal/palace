@@ -17,9 +17,29 @@ export const menuItems = [
     icon: CreditCard,
     subItems: [
       {
+        href: "/credit-allocation",
+        label: "All Allocations",
+        icon: "List",
+      },
+      {
         href: "/credit-allocation/create",
         label: "Create Allocation",
         icon: "Plus",
+      },
+      {
+        href: "/credit-allocation/entity-directory",
+        label: "Entity Directory",
+        icon: "Users",
+      },
+      {
+        href: "/credit-allocation/usage-analytics",
+        label: "Usage Analytics",
+        icon: "BarChart",
+      },
+      {
+        href: "/credit-allocation/allocation-summary",
+        label: "Allocation Summary",
+        icon: "FileText",
       }
     ]
   },
