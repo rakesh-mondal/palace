@@ -15,6 +15,13 @@ export const menuItems = [
     href: "/credit-allocation",
     label: "Credit Allocation",
     icon: CreditCard,
+    subItems: [
+      {
+        href: "/credit-allocation/create",
+        label: "Create Allocation",
+        icon: "Plus",
+      }
+    ]
   },
   {
     href: "/settings",

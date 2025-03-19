@@ -15,6 +15,10 @@ export const hiddenMenuItems = [
 
 // Function to check if a menu item should be hidden
 export function isHiddenMenuItem(path: string): boolean {
-  return hiddenMenuItems.includes(path)
+  // Don't hide the create route
+  if (path === "/credit-allocation/create") {
+    return false;
+  }
+  return hiddenMenuItems.includes(path);
 }
 
