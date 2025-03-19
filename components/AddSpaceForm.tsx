@@ -65,14 +65,24 @@ const formSchema = z.object({
   equipments: z.array(z.string()),
   accessType: z.string().min(1, "Access type is required"),
   status: z.string().min(1, "Status is required"),
-  unavailableDates: z
-    .array(
-      z.object({
+  unavailableDates: z.array(
+    z.object({
+      from: z.string(),
+      to: z.string(),
+      timeSlots: z.array(z.object({
         from: z.string(),
         to: z.string(),
-      }),
-    )
-    .optional(),
+        reason: z.string().optional()
+      })).optional()
+    })
+  ).optional(),
+  systemCalculatedHours: z.number().min(0),
+  availableHoursForAllocation: z.number().min(0).refine(
+    (val) => val <= (watch?.("systemCalculatedHours") || 0),
+    {
+      message: "Available hours for allocation cannot exceed system-calculated hours"
+    }
+  ),
   propertyOwners: z.array(z.string()),
   operators: z.array(z.string()),
   organizations: z.array(z.string()),
@@ -135,6 +145,8 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
       accessType: "",
       status: "",
       unavailableDates: [],
+      systemCalculatedHours: 0,
+      availableHoursForAllocation: 0,
       propertyOwners: [],
       operators: [],
       organizations: [],
@@ -810,93 +822,78 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
           </>
         )}
         {currentStep === 2 && (
-          <>
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-medium mb-4">Access Control</h3>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="accessType" className="text-xs font-medium">
-                      Access Type
-                    </Label>
-                    <Controller
-                      name="accessType"
-                      control={control}
-                      render={({ field }) => (
-                        <Select onValueChange={field.onChange} value={field.value} className="h-10">
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select access type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="public">Public Access</SelectItem>
-                            <SelectItem value="private">Private Access</SelectItem>
-                            <SelectItem value="membersOnly">Members Only</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                    {errors.accessType && <p className="text-red-500 text-xs">{errors.accessType.message}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="proxyDoorId" className="text-xs font-medium">
-                      Proxy Door ID
-                    </Label>
-                    <Controller
-                      name="proxyDoorId"
-                      control={control}
-                      render={({ field }) => (
-                        <Input {...field} id="proxyDoorId" placeholder="Enter Proxy Door ID" className="h-10" />
-                      )}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="vationxReaderId" className="text-xs font-medium">
-                      Vationx Reader ID
-                    </Label>
-                    <Controller
-                      name="vationxReaderId"
-                      control={control}
-                      render={({ field }) => (
-                        <Input {...field} id="vationxReaderId" placeholder="Enter Vationx Reader ID" className="h-10" />
-                      )}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="vationxReaderGroupId" className="text-xs font-medium">
-                      Vationx Reader Group ID
-                    </Label>
-                    <Controller
-                      name="vationxReaderGroupId"
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          id="vationxReaderGroupId"
-                          placeholder="Enter Vationx Reader Group ID"
-                          className="h-10"
-                        />
-                      )}
-                    />
-                  </div>
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Hours Management</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Available Hours (as per System)</Label>
+                  <Controller
+                    name="systemCalculatedHours"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        type="number"
+                        disabled
+                        className="bg-gray-100"
+                        placeholder="Auto-calculated"
+                      />
+                    )}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    System automatically calculates total operational hours
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Available Hours for Allocation</Label>
+                  <Controller
+                    name="availableHoursForAllocation"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        type="number"
+                        min={0}
+                        max={watch("systemCalculatedHours")}
+                        placeholder="Enter available hours"
+                      />
+                    )}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Cannot exceed system-calculated hours
+                  </p>
                 </div>
               </div>
+            </div>
 
-              <div>
-                <h3 className="text-lg font-medium mb-4">Availability</h3>
-                <div className="space-y-4">
-                  <Label className="text-xs fontmedium">Unavailable Dates</Label>
-                  <Controller
-                    name="unavailableDates"
-                    control={control}
-                    defaultValue={[]}
-                    render={({ field }) => (
-                      <div className="spacey-4">
-                        {field.value.map((date, index) => (
-                          <div key={index} className="flex items-center gap-4">
-                            <div className="flex-1">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Enhanced Availability Settings</h3>
+              <div className="space-y-4">
+                <Controller
+                  name="unavailableDates"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="space-y-4">
+                      {field.value?.map((date, index) => (
+                        <div key={index} className="space-y-4 p-4 border rounded-md">
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-medium">Unavailable Period {index + 1}</h4>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                const newDates = [...field.value]
+                                newDates.splice(index, 1)
+                                field.onChange(newDates)
+                              }}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label>From Date</Label>
                               <Input
                                 type="date"
                                 value={date.from}
@@ -905,10 +902,10 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
                                   newDates[index].from = e.target.value
                                   field.onChange(newDates)
                                 }}
-                                className="h-10"
                               />
                             </div>
-                            <div className="flex-1">
+                            <div className="space-y-2">
+                              <Label>To Date</Label>
                               <Input
                                 type="date"
                                 value={date.to}
@@ -917,40 +914,162 @@ export function AddSpaceForm({ onSubmit, onCancel, internalUsers, externalUsers 
                                   newDates[index].to = e.target.value
                                   field.onChange(newDates)
                                 }}
-                                className="h-10"
-                              />{" "}
+                              />
                             </div>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                const newDates = field.value.filter((_, i) => i !== index)
-                                field.onChange(newDates)
-                              }}
-                              className="h-8"
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
                           </div>
-                        ))}
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => {
-                            field.onChange([...field.value, { from: "", to: "" }])
-                          }}
-                          className="w-[200px] h-8"
-                        >
-                          Add Date Range
-                        </Button>
-                      </div>
+                          
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                              <Label>Time Slots (Optional)</Label>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  const newDates = [...field.value]
+                                  if (!newDates[index].timeSlots) {
+                                    newDates[index].timeSlots = []
+                                  }
+                                  newDates[index].timeSlots.push({
+                                    from: "",
+                                    to: "",
+                                    reason: ""
+                                  })
+                                  field.onChange(newDates)
+                                }}
+                              >
+                                <Plus className="h-4 w-4 mr-2" />
+                                Add Time Slot
+                              </Button>
+                            </div>
+                            
+                            {date.timeSlots?.map((slot, slotIndex) => (
+                              <div key={slotIndex} className="grid grid-cols-3 gap-4 items-start p-3 bg-gray-50 rounded-md">
+                                <div className="space-y-2">
+                                  <Label>From Time</Label>
+                                  <Input
+                                    type="time"
+                                    value={slot.from}
+                                    onChange={(e) => {
+                                      const newDates = [...field.value]
+                                      newDates[index].timeSlots[slotIndex].from = e.target.value
+                                      field.onChange(newDates)
+                                    }}
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label>To Time</Label>
+                                  <Input
+                                    type="time"
+                                    value={slot.to}
+                                    onChange={(e) => {
+                                      const newDates = [...field.value]
+                                      newDates[index].timeSlots[slotIndex].to = e.target.value
+                                      field.onChange(newDates)
+                                    }}
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label>Reason (Optional)</Label>
+                                  <div className="flex gap-2">
+                                    <Input
+                                      value={slot.reason || ""}
+                                      onChange={(e) => {
+                                        const newDates = [...field.value]
+                                        newDates[index].timeSlots[slotIndex].reason = e.target.value
+                                        field.onChange(newDates)
+                                      }}
+                                      placeholder="e.g., Maintenance"
+                                    />
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => {
+                                        const newDates = [...field.value]
+                                        newDates[index].timeSlots.splice(slotIndex, 1)
+                                        field.onChange(newDates)
+                                      }}
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          field.onChange([...field.value || [], { from: "", to: "", timeSlots: [] }])
+                        }}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Unavailable Period
+                      </Button>
+                    </div>
+                  )}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Access Control</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Access Type</Label>
+                  <Controller
+                    name="accessType"
+                    control={control}
+                    render={({ field }) => (
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select access type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="proxy">Proxy Card</SelectItem>
+                          <SelectItem value="vationx">VationX</SelectItem>
+                          <SelectItem value="manual">Manual</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Proxy Door ID</Label>
+                  <Controller
+                    name="proxyDoorId"
+                    control={control}
+                    render={({ field }) => (
+                      <Input {...field} placeholder="Enter Proxy Door ID" className="h-10" />
+                    )}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Vationx Reader ID</Label>
+                  <Controller
+                    name="vationxReaderId"
+                    control={control}
+                    render={({ field }) => (
+                      <Input {...field} placeholder="Enter Vationx Reader ID" className="h-10" />
+                    )}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Vationx Reader Group ID</Label>
+                  <Controller
+                    name="vationxReaderGroupId"
+                    control={control}
+                    render={({ field }) => (
+                      <Input {...field} placeholder="Enter Vationx Reader Group ID" className="h-10" />
                     )}
                   />
                 </div>
               </div>
             </div>
-          </>
+          </div>
         )}
         {currentStep === 3 && (
           <div className="space-y-4">
