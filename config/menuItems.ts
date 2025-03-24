@@ -1,4 +1,4 @@
-import { LayoutDashboard, Home, Settings, Users, CreditCard } from "lucide-react"
+import { LayoutDashboard, Home, Settings, Users, CreditCard, Building2, PlusCircle } from "lucide-react"
 
 export const menuItems = [
   {
@@ -15,6 +15,18 @@ export const menuItems = [
     href: "/credit-allocation",
     label: "Credit Allocation",
     icon: CreditCard,
+    subItems: [
+      {
+        href: "/credit-allocation/create",
+        label: "Create Allocation",
+        icon: "PlusCircle",
+      },
+      {
+        href: "/credit-allocation/entity-directory",
+        label: "Entity Directory",
+        icon: "Building2",
+      },
+    ],
   },
   {
     href: "/settings",
@@ -62,5 +74,7 @@ export const iconMap = {
   Settings,
   Users,
   CreditCard,
+  Building2,
+  PlusCircle,
 }
 

@@ -37,9 +37,11 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Search, MoreHorizontal, Eye, Edit, Clock, XCircle, Building2, User } from "lucide-react"
+import { Search, MoreHorizontal, Eye, Edit, Clock, XCircle, Building2, User, PlusCircle } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { Label } from "@/components/ui/label"
+import Link from "next/link"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 // Mock data for current allocations
 const mockAllocations = [
@@ -161,7 +163,51 @@ export default function CreditAllocationPage() {
   }
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
+    <div className="container mx-auto p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Credit Allocation</h1>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Link href="/credit-allocation/create">
+          <Card className="hover:bg-gray-50 transition-colors cursor-pointer h-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <PlusCircle className="h-5 w-5" />
+                Create Allocation
+              </CardTitle>
+              <CardDescription>
+                Create new credit allocations for entities
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600">
+                Allocate credits to developers, operators, or corporate entities. Set available hours and manage credit distribution.
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/credit-allocation/entity-directory">
+          <Card className="hover:bg-gray-50 transition-colors cursor-pointer h-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="h-5 w-5" />
+                Entity Directory
+              </CardTitle>
+              <CardDescription>
+                View and manage entity allocations
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600">
+                Browse through all entities, view their credit allocations, and manage their credit distribution settings.
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+      </div>
+
       <div className="flex items-center justify-between space-y-2">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Credit Allocation</h2>

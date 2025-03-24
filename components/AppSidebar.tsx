@@ -137,7 +137,41 @@ const AppSidebar = ({ className }: SidebarProps) => {
       <SidebarMenu>
         {console.log("Rendering main menu items")}
         {/* Render main menu items */}
-        {mainMenuItems.map(renderMainMenuItem)}
+        {mainMenuItems
+          .filter(item => !isHiddenMenuItem(item.href))
+          .map((item) => (
+            <SidebarMenuItem key={item.href}>
+              <SidebarMenuButton
+                asChild
+                data-active={pathname === item.href}
+                className={cn(
+                  "flex items-center w-full cursor-pointer",
+                  isCollapsed
+                    ? "p-0 h-10 justify-center data-[active=true]:bg-[#77866E]/50 data-[active=true]:text-white"
+                    : "h-10 px-4",
+                  "hover:bg-[#77866E]/50 hover:text-white transition-colors",
+                  "data-[active=true]:bg-[#77866E]/50 data-[active=true]:text-white",
+                  "rounded-none",
+                  "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+                  "whitespace-normal",
+                )}
+              >
+                <Link href={item.href} className="flex items-center gap-3 w-full">
+                  {isCollapsed ? (
+                    <div className="flex items-center justify-center w-10 h-10">
+                      <item.icon className="w-5 h-5 text-gray-400" />
+                      <span className="sr-only">{item.label}</span>
+                    </div>
+                  ) : (
+                    <>
+                      <item.icon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                      <span className="text-xs sm:text-sm font-medium break-words">{item.label}</span>
+                    </>
+                  )}
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
 
         {/* Credit Allocation Menu */}
         <SidebarMenuItem>
